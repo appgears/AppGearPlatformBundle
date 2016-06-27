@@ -1,0 +1,39 @@
+<?php
+
+namespace Pickbox\AppGearBundle\Entity\Property;
+
+use Doctrine\ORM\Mapping as ORM;
+
+/**
+ * @ORM\Entity
+ * @ORM\Table(name="system_property_relationship")
+ */
+class Relationship
+{
+    /**
+     * @ORM\Id
+     * @ORM\Column(type="integer")
+     * @ORM\GeneratedValue(strategy="AUTO")
+     */
+    protected $id;
+
+    /**
+     * @ORM\Column(type="string", length=255)
+     */
+    protected $name;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="\Pickbox\AppGearBundle\Entity\Model", inversedBy="relationships")
+     */
+    protected $model;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="\Pickbox\AppGearBundle\Entity\Relationship", inversedBy="properties")
+     */
+    protected $relationship;
+
+    /**
+     * @ORM\Column(type="string", length=255)
+     */
+    protected $side;
+}

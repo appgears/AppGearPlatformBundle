@@ -1,0 +1,7 @@
+{% extends 'AppGearPlatformBundle:View:Entity\\Detail.html.twig' %}
+
+{% block relationshipItem %}
+    <a href="{{ path('appgear_view_admin_entity_detail_dynamic', {(routePrefix ~ 'entity_modelId'): property.target.id, (routePrefix ~ 'entity_id'): relatedItem.id}) }}">
+        {{ parent() }}
+    </a>
+{% endblock %}

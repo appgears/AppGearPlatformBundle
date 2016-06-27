@@ -1,0 +1,93 @@
+{% extends 'AppGearPlatformBundle:View:base.html.twig' %}
+
+{% block title %}
+    Default
+{% endblock %}
+
+
+{# Главный блок #}
+{% block body %}
+    {{ block('fields') }}
+    {{ block('relationships') }}
+{% endblock %}
+
+
+{# Отображение лейбла для свойства #}
+{% block label %}
+    <b>{{ property.name|humanize }}:</b><br />
+{% endblock %}
+
+
+{# Отображение набора полей #}
+{% block fields %}
+    {% for property in model.allFields %}
+        {{ block('field') }}
+    {% endfor %}
+{% endblock %}
+
+
+{# Отображение одного поля #}
+{% block field %}
+
+    {{ block('label') }}
+
+    {# Имя блока для данного типа поля #}
+    {% set _block_name =  ('field' ~ (property|class)) %}
+
+    {# Выполняем блок #}
+    {% set _block =  block(_block_name) %}
+
+    {# Если содержимое блока не пустое - значит блок существует #}
+    {% if _block is not empty %}
+        {{ _block|raw }}
+        {# Иначе блока не существует - рендерим строковый блок по-умолчанию #}
+    {% else %}
+        {{ block('fieldString') }}
+    {% endif %}
+
+    <br /><br />
+
+{% endblock %}
+
+
+{# Отображение набора связей #}
+{% block relationships %}
+    {% for property in model.allRelationships %}
+        {{ block('relationship') }}
+    {% endfor %}
+{% endblock %}
+
+
+{# Отображение одной связи #}
+{% block relationship %}
+
+    {{ block('label') }}
+    {{ block('relationship' ~ property.type)|raw }}
+
+    <br /><br />
+
+{% endblock %}
+
+
+{# Отображения для связи типа OneToMany #}
+{% block relationshipOneToMany %}
+    {{ block('relationshipToMany') }}
+{% endblock %}
+
+
+{# Отображения для связи типа ManyToMany #}
+{% block relationshipManyToMany %}
+    {{ block('relationshipToMany') }}
+{% endblock %}
+
+
+{# Отображения для связи типа ManyToOne #}
+{% block relationshipManyToOne %}
+    {{ block('relationshipToOne') }}
+{% endblock %}
+
+
+{# Отображения для связи типа OneToOne #}
+{% block relationshipOneToOne %}
+    {{ block('relationshipToOne') }}
+{% endblock %}

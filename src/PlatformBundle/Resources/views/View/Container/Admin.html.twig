@@ -1,0 +1,133 @@
+{% import _self as menu %}
+
+{% macro buildSideMenu(scope, icon, selected) %}
+    {% import _self as menu %}
+
+    {% set scope_in_selected_scopes = false %}
+    {% for selected_scope in selected.scopes if not scope_in_selected_scopes %}
+        {% if scope.id == selected_scope.id %}
+            {% set scope_in_selected_scopes = true %}
+        {% endif %}
+    {% endfor %}
+
+    <li{% if scope_in_selected_scopes %} class="menu-open"{% endif %}>
+        <a href="#">
+            <i class="fa fa-menu-arrow pull-right"></i>
+            <i class="{% if icon is not null %}main-icon fa {{ icon }}{% endif %}"></i> <span>{{ scope.name }}</span>
+        </a>
+
+        <ul>
+            {% for child in scope.children %}
+                {{ menu.buildSideMenu(child, null, selected) }}
+            {% endfor %}
+
+            {% set _selected_modeL_id = (selected.model == null) ? null : selected.model.id %}
+            {% for model in scope.models %}
+                <li{% if model.id == _selected_modeL_id %} class="active"{% endif %}>
+                    <a href="{{ path('appgear_view_admin_collection_dynamic', {'view_entity_entity_model_id': model.id}) }}"{#{% if model.id === view.endModelId %}style="font-weight: bold"{% endif %}#}>{{ model.name }}</a>
+                </li>
+            {% endfor %}
+        </ul>
+    </li>
+{% endmacro %}
+
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+    <meta charset="utf-8"/>
+    <meta http-equiv="Content-type" content="text/html; charset=utf-8"/>
+
+    <title>Title</title>
+
+    <!-- mobile settings -->
+    <meta name="viewport" content="width=device-width, maximum-scale=1, initial-scale=1, user-scalable=0"/>
+
+    <!-- WEB FONTS -->
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,700,800&amp;subset=latin,latin-ext,cyrillic,cyrillic-ext"
+          rel="stylesheet" type="text/css"/>
+
+    <!-- CORE CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+
+    <!-- THEME CSS -->
+    <link href="{{ asset('bundles/appgearplatform/SmartyAdmin/css/essentials.css') }}" rel="stylesheet"
+          type="text/css"/>
+    <link href="{{ asset('bundles/appgearplatform/SmartyAdmin/css/layout.css') }}" rel="stylesheet" type="text/css"/>
+    <link href="{{ asset('bundles/appgearplatform/SmartyAdmin/css/color_scheme/green.css') }}" rel="stylesheet"
+          type="text/css" id="color_scheme"/>
+
+    <!-- CUSTOM CSS -->
+    <link rel="stylesheet" href="{{ asset('bundles/appgearplatform/css/admin.css') }}">
+
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+    <script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/headjs/1.0.3/head.load.min.js"></script>
+</head>
+<body class="min">
+<div id="wrapper" class="clearfix">
+
+    {# Admin left side menu #}
+    <aside id="aside">
+        <nav id="sideNav"><!-- MAIN MENU -->
+            <ul class="nav nav-list">
+                {{ menu.buildSideMenu(scopes.appgear, 'fa-gears', selected) }}
+                {% for scope in scopes.other %}
+                    {{ menu.buildSideMenu(scope, 'fa-table', selected) }}
+                {% endfor %}
+            </ul>
+
+        </nav>
+
+        <span id="asidebg"><!-- aside fixed background --></span>
+    </aside>
+
+    {# Admin top menu #}
+    <header id="header">
+
+        <!-- Mobile Button -->
+        <button id="mobileMenuBtn"></button>
+
+        <!-- Logo -->
+        <span class="logo pull-left">
+            <img src="{{ asset('bundles/appgearplatform/SmartyAdmin/images/logo_light.png') }}"
+                 alt="admin panel" height="35">
+        </span>
+    </header>
+
+    {# Content #}
+    <section id="middle" style="margin-left: 0px">
+        {% if selected.model != null %}
+            <header id="page-header">
+                <h1>{{ selected.model.name }}</h1>
+                <ol class="breadcrumb">
+                    {% for _selected_scope in selected.scopes %}
+                        <li>{{ _selected_scope.name }}</li>
+                    {% endfor %}
+                    <li><a href="{{ path('appgear_view_admin_collection_dynamic', {'view_entity_entity_model_id': selected.model.id}) }}">{{ selected.model.name }}</a></li>
+                </ol>
+            </header>
+        {% endif %}
+
+        {% if container|length %}
+        <div id="content" class="padding-20">
+            <div class="panel panel-default">
+                <div class="panel-body padding-30">
+                    {{ container|raw }}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </section>
+</div>
+
+<script type="text/javascript">var plugin_path = 'assets/plugins/';</script>
+<script type="text/javascript" src="{{ asset('bundles/appgearplatform/SmartyAdmin/js/app.js') }}"></script>
+<script type="text/javascript"
+        src="{{ asset('bundles/appgearplatform/js/relationship/many-to-one/inline-category.js') }}"></script>
+
+<!--[if lt IE 9]>
+<script type="text/javascript" src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+<script type="text/javascript" src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+<![endif]-->
+</body>
+</html>

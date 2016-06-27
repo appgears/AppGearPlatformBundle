@@ -1,0 +1,21 @@
+services:
+
+#  aptoma.twig.markdown_engine.michelf_markdown_engine:
+#    class: Aptoma\Twig\Extension\MarkdownEngine\MichelfMarkdownEngine
+#    public: false
+#
+#  aptoma.twig.markdown_engine.github_markdown_engine:
+#    class: Aptoma\Twig\Extension\MarkdownEngine\GitHubMarkdownEngine
+#    public: false
+
+  aptoma.twig.markdown_engine.phpleague_common_mark_engine:
+    class: Aptoma\Twig\Extension\MarkdownEngine\PHPLeagueCommonMarkEngine
+    public: false
+
+  aptoma.twig.markdown_extension:
+    class: Aptoma\Twig\Extension\MarkdownExtension
+    arguments:
+      - @aptoma.twig.markdown_engine.phpleague_common_mark_engine
+    public: false
+    tags:
+        - { name: twig.extension }

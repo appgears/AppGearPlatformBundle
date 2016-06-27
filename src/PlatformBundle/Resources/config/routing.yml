@@ -1,0 +1,76 @@
+appgear_remove:
+    pattern:  /remove/{entity_modelId}/{entity_id}
+    defaults:
+      _controller: AppGearPlatformBundle:Main:entryPoint
+      controllerModelId: 90
+    methods: [POST]
+
+appgear_save:
+    pattern:  /save/{entity_modelId}
+    defaults:
+      _controller: AppGearPlatformBundle:Main:entryPoint
+      controllerModelId: 91
+    methods: [POST]
+
+appgear_view_admin:
+    pattern: /view/admin
+    defaults:
+      _controller: AppGearPlatformBundle:Main:entryPoint
+      controllerModelId: 92
+      view_modelId: 171
+    methods: [GET]
+
+# Роутер для отображения детальной страницы сущности
+appgear_view_admin_entity_detail_dynamic:
+    pattern:  /view/admin/entity/detail/{view_entity_entity_modelId}/{view_entity_entity_id}
+    defaults:
+      _controller: AppGearPlatformBundle:Main:entryPoint
+      controllerModelId: 92
+      view_modelId: 171
+      view_entity_modelId: 157
+    methods: [GET]
+    requirements:
+      view_entity_entity_modelId: "\d+"
+      view_entity_entity_id:      "\d+"
+
+# Роутер для отображения страницы редактирования сущности
+appgear_view_admin_entity_edit_dynamic:
+    pattern:  /view/admin/entity/edit/{view_entity_entity_modelId}/{view_entity_entity_id}
+    defaults:
+      _controller: AppGearPlatformBundle:Main:entryPoint
+      controllerModelId: 92
+      view_modelId: 171
+      view_entity_modelId: 175
+      view_entity_entity_id: null
+    methods: [GET]
+    requirements:
+      view_entity_entity_modelId: "\d+"
+      view_entity_entity_id:      "\d+"
+
+# Роутер для отображения страницы создания сущности
+appgear_view_admin_entity_edit_dynamic:
+    pattern:  /view/admin/entity/edit/{view_entity_entity_modelId}
+    defaults:
+      _controller: AppGearPlatformBundle:Main:entryPoint
+      controllerModelId: 92
+      view_modelId: 171
+      view_entity_modelId: 175
+      view_entity_entity_modelId: null
+    methods: [GET]
+
+# Роутер для любых отображений коллекций
+appgear_view_admin_collection_dynamic:
+    pattern:  /view/admin/collection/table/{view_entity_entity_model_id}/{view_entity_currentPage}
+    defaults:
+      _controller: AppGearPlatformBundle:Main:entryPoint
+      controllerModelId: 92
+      view_modelId: 171
+      view_entity_modelId: 146
+      view_entity_modelId: 146
+      view_entity_template: 'AppGearPlatformBundle:View:Collection\Table\Smart.html.twig'
+      view_entity_currentPage: 1
+      view_entity_entity_modelId: 12
+    methods: [GET,POST]
+    requirements:
+      view_entity_entity_model_id: "\d+"
+      view_entity_currentPage:     "\d+"

@@ -1,0 +1,68 @@
+services:
+
+    ag.field.advanced.file:
+        class: AppGear\PlatformBundle\Field\Advanced\File
+        tags:
+            - name: ag.field.storage.mysql.type
+              alias: file
+
+    ag.field.advanced.file.initializer:
+      class: AppGear\PlatformBundle\Field\Advanced\File\Initializer
+      arguments:
+        - %appgear.upload_directory%
+      tags:
+        - {name: ag.field.initializer, field: file}
+
+    ag.field.advanced.markdown:
+        class: AppGear\PlatformBundle\Field\Advanced\Markdown
+        tags:
+            - name: ag.field.storage.mysql.type
+              alias: markdown
+
+    ag.field.advanced.password:
+        class: AppGear\PlatformBundle\Field\Advanced\Password
+        tags:
+            - name: ag.field.storage.mysql.type
+              alias: password
+
+    ag.field.boolean:
+        class: AppGear\PlatformBundle\Field\Boolean
+        tags:
+            - name: ag.field.storage.mysql.type
+              alias: boolean
+
+    ag.field.datetime:
+        class: AppGear\PlatformBundle\Field\Datetime
+        tags:
+            - name: ag.field.storage.mysql.type
+              alias: datetime
+
+    ag.field.float:
+        class: AppGear\PlatformBundle\Field\Float
+        tags:
+            - name: ag.field.storage.mysql.type
+              alias: float
+
+    ag.field.id:
+        class: AppGear\PlatformBundle\Field\Id
+        tags:
+            - name: ag.field.storage.mysql.type
+              alias: id
+
+    ag.field.integer:
+        class: AppGear\PlatformBundle\Field\Integer
+        tags:
+            - name: ag.field.storage.mysql.type
+              alias: integer
+
+    ag.field.string:
+        class: AppGear\PlatformBundle\Field\String
+        tags:
+            - name: ag.field.storage.mysql.type
+              alias: string
+
+    ag.field.text:
+        class: AppGear\PlatformBundle\Field\Text
+        tags:
+            - name: ag.field.storage.mysql.type
+              alias: text

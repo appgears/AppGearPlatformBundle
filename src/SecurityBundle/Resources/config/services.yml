@@ -1,0 +1,5 @@
+services:
+    appgear.security.user_provider:
+        class: AppGear\SecurityBundle\Adapter\UserProvider
+        arguments:
+            - @ag.storage

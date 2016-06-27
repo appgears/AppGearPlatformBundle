@@ -1,0 +1,7 @@
+{% extends 'AppGearPlatformBundle:View:Entity.html.twig' %}
+
+{% block footer %}
+    {% if view is defined and view is not null and view.showPagination %}
+        {% include 'AppGearPlatformBundle:View:Collection\\navigation.html.twig' with {'view': view, 'routePrefix': routePrefix} %}
+    {% endif %}
+{% endblock %}

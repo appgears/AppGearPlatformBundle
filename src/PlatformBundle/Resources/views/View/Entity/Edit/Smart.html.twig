@@ -1,0 +1,22 @@
+{% extends 'AppGearPlatformBundle:View:Entity\\Edit.html.twig' %}
+
+{% block relationshipToMany %}
+    {{ parent() }}
+
+    {% if property.target is defined and property.target is not null %}
+        {% if property.opposite is defined and property.opposite is not null %}
+            <a href="{{ path('appgear_view_admin_entity_edit_dynamic', {(routePrefix ~ 'entity_modelId'): property.target.id}) }}?{{ (routePrefix ~ 'entity_' ~ property.opposite.name ~ '_id') }}={{ view.entity.id }}" target="_blank" class="btn btn-default btn-xs"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Create</a>
+        {% else %}
+            <a href="{{ path('appgear_view_admin_entity_edit_dynamic', {(routePrefix ~ 'entity_modelId'): property.target.id}) }}" target="_blank" class="btn btn-default btn-xs"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Create</a>
+        {% endif %}
+    {% endif %}
+{% endblock %}
+
+
+{% block relationshipToOne %}
+    {{ parent() }}
+
+    {% if property.target is defined and property.target is not null %}
+        <a href="{{ path('appgear_view_admin_entity_edit_dynamic', {(routePrefix ~ 'entity_modelId'): property.target.id}) }}" target="_blank" class="btn btn-default btn-xs"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Create</a>
+    {% endif %}
+{% endblock %}

@@ -1,0 +1,233 @@
+{% extends 'AppGearPlatformBundle:View:Entity.html.twig' %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link href="/bundles/appgearplatform/css/field/datetime/bootstrap-datetimepicker.min.css" rel="stylesheet">
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script type="text/javascript"
+            src="/bundles/appgearplatform/js/field/datetime/bootstrap-datetimepicker.min.js"></script>
+{% endblock %}
+
+{# Заголовок #}
+{% block title %}
+    {% if view.entity.id is null %}Создание новой записи{% else %}Редактирование записи{% endif %}
+{% endblock %}
+
+
+{# Главный блок #}
+{% block body %}
+    <form action="{{ path('appgear_save', {entity_modelId: model.id}) }}" method="post" role="form"
+          enctype="multipart/form-data">
+        {{ parent() }}
+
+        {{ block('buttons') }}
+    </form>
+{% endblock %}
+
+{# Отображение одного поля #}
+{% block field %}
+
+    {# Не отображаем калькулируемые поля #}
+    {% if property.serviceName|length == 0 %}
+        {{ parent() }}
+    {% endif %}
+{% endblock %}
+
+
+{# Отображение поля даты и времени #}
+{% block fieldDatetime %}
+    {% set _value = attribute(view.entity, property.name) %}
+    {# TODO: должно определяться в виде дефолтного значения поля, а не в шаблоне #}
+    {% if _value is empty %}
+        {% set _value = "now"|date("Y-m-d H:i:s") %}
+    {% endif %}
+    <div class="input-append date form_datetime">
+        <input class="form-control" size="16" type="text" name="entity_{{ property.name }}" value="{{ _value }}"
+               readonly="readonly" autocomplete="off"/>
+        <span class="add-on"><i class="icon-th"></i></span>
+    </div>
+
+    <script type="text/javascript">
+        $(".form_datetime").datetimepicker({
+            format: "yyyy-mm-dd hh:ii:ss"
+        });
+    </script>
+{% endblock %}
+
+
+{# Отображение флага #}
+{% block fieldBoolean %}
+    {% if attribute(view.entity, property.name) == 1 %}
+        {% set _checked_yes = 'checked ' %}
+        {% set _checked_no = '' %}
+    {% else %}
+        {% set _checked_yes = '' %}
+        {% set _checked_no = 'checked ' %}
+    {% endif %}
+
+    <label class="radio-inline"><input type="radio" name="entity_{{ property.name }}" value="1"
+                                       autocomplete="off" {{ _checked_yes }}/>Yes</label>
+    <label class="radio-inline"><input type="radio" name="entity_{{ property.name }}" value="0"
+                                       autocomplete="off" {{ _checked_no }}/>No</label>
+{% endblock %}
+
+
+{# Отображение строкового поля #}
+{% block fieldString %}
+    <input type="text" class="form-control" name="entity_{{ property.name }}"
+           value="{{ attribute(view.entity, property.name) }}"/>
+{% endblock %}
+
+
+{# Отображение текстового поля #}
+{% block fieldText %}
+    <textarea class="form-control" name="entity_{{ property.name }}"
+              rows="10">{{ attribute(view.entity, property.name) }}</textarea>
+{% endblock %}
+
+
+{# Отображение для файла #}
+{% block fieldFile %}
+    <input type="file" class="form-control" name="entity_{{ property.name }}"/>
+{% endblock %}
+
+
+{# Отображение для Github Markdown #}
+{% block fieldMarkdown %}
+    <textarea class="form-control" name="entity_{{ property.name }}" id="entity_{{ property.name }}"
+              rows="10">{{ attribute(view.entity, property.name) }}</textarea>
+    <script type="text/javascript">
+        head.load(['//cdn.jsdelivr.net/simplemde/latest/simplemde.min.css', '//cdn.jsdelivr.net/simplemde/latest/simplemde.min.js'], function () {
+            new SimpleMDE({element: document.getElementById("entity_{{ property.name }}")});
+        })
+    </script>
+{% endblock %}
+
+
+{# Отображения для связи типа ToMany #}
+{% block relationshipToMany %}
+
+    {# Идентификаторы уже связанных записей #}
+    {% set _related_items_ids = [] %}
+    {% if attribute(view.entity, property.name) is not null %}
+        {% for _related_item in attribute(view.entity, property.name) %}
+            {% set _related_items_ids = [_related_item.id]|merge(_related_items_ids) %}
+        {% endfor %}
+    {% endif %}
+
+
+    <select class="form-control" name="entity_{{ property.name }}_id[]" multiple="multiple" autocomplete="off">
+        {{ block('relationshipItems') }}
+    </select>
+
+{% endblock %}
+
+
+{# Отображения для связи типа ToOne #}
+{% block relationshipToOne %}
+
+    {# Идентификаторы уже связанных записей #}
+    {% set _related_items_ids = [] %}
+    {% if attribute(view.entity, property.name) is not null %}
+        {% set _related_items_ids = [attribute(view.entity, property.name).id] %}
+    {% endif %}
+
+    {% set _custom_render = render_custom_relationship_view(['Entity', 'Edit']) %}
+
+    {% if _custom_render is null %}
+        <select class="form-control" name="entity_{{ property.name }}_id" autocomplete="off">
+            <option value=""> -</option>
+
+            {{ block('relationshipItems') }}
+        </select>
+    {% else %}
+        {{ _custom_render|raw }}
+    {% endif %}
+
+{% endblock %}
+
+
+{# Отображения для списка элементов с которыми можно установить связь #}
+{% block relationshipItems %}
+
+    {% set _opposite_model = property.target %}
+
+    {# Пытаемся получить связь которая делает модель рекурсивной #}
+    {% if _opposite_model is not null %}
+        {% set _recursive_relationship = _opposite_model | ag_service_entity_model_get_recursive_relationship_property %}
+    {% else %}
+        {% set _recursive_relationship = null %}
+    {% endif %}
+
+    {# Если модель рекурсивная - отображаем сущности в виде иерархической структуры #}
+    {% if _recursive_relationship is not null %}
+        {{ block('relationshipItemsRecursive') }}
+
+        {# Если модель не рекурсивная - отображаем сущности в виде линейного списка #}
+    {% elseif _opposite_model is not null %}
+        {{ block('relationshipItemsLinear') }}
+    {% endif %}
+{% endblock %}
+
+
+{# Рекурсивное отображение для связанных элементов #}
+{% block relationshipItemsRecursive %}
+
+    {# Обращение к противоположной модели #}
+    {% set _opposite_recursive_relationship_getter = _recursive_relationship.opposite.name %}
+
+    {# Получаем корневые сущности #}
+    {% set _items = [] %}
+    {% for relatedModelItem in relatedModelsItems[_opposite_model.fullName] %}
+        {% if relatedModelItem.parent is null %}
+            {% set _items = _items|merge([relatedModelItem]) %}
+        {% endif %}
+    {% endfor %}
+    {% set level =  0 %}
+
+    {{ block('relationshipItemsRecursiveOptions') }}
+{% endblock %}
+
+
+{# Отображение для одного уровня иерархии рекурсивного отображения #}
+{% block relationshipItemsRecursiveOptions %}
+    {% for _item in _items %}
+        {{ block('relationshipItemsRecursiveOption') }}
+    {% endfor %}
+{% endblock %}
+
+{# Отображение для одного элемента рекурсивного отображения #}
+{% block relationshipItemsRecursiveOption %}
+    <option value="{{ _item.id }}" {% if _item.id in _related_items_ids %} selected="true" {% endif %}>{{ '&nbsp;'|str_repeat(level*4)|raw }}{{ _item }}</option>
+    {% set _items = attribute(_item, _opposite_recursive_relationship_getter) %}
+    {% set level = level+1 %}
+    {{ block('relationshipItemsRecursiveOptions') }}
+{% endblock %}
+
+
+{# Отображение для связанных элементов в виде линейного списка #}
+{% block relationshipItemsLinear %}
+    {% for _item in relatedModelsItems[_opposite_model.fullName] %}
+        <option value="{{ _item.id }}"{% if _item.id in _related_items_ids %} selected="true" {% endif %}>{{ _item }}</option>
+    {% endfor %}
+{% endblock %}
+
+
+{# Отображения кнопки submit #}
+{% block buttons %}
+    <div class="btn-group">
+        <button type="submit" class="btn btn-primary">Save</button>
+        <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="caret"></span></button>
+        <ul class="dropdown-menu">
+            <li><a href="#">Save and Create another</a></li>
+        </ul>
+    </div>
+
+    {% if view.entity.id is not null %}
+        <a href="{{ path('appgear_view_admin_entity_detail_dynamic', {(routePrefix ~ 'entity_modelId'): model.id, (routePrefix ~ 'entity_id'): view.entity.id}) }}" class="btn btn-default">Cancel</a>
+        <a href="" class="btn btn-danger" onclick="if (confirm('Are you sure?')){$.post('{{ path('appgear_remove', {'entity_modelId': model.id, 'entity_id': view.entity.id}) }}', {}, function(){document.location='{{ path('appgear_view_admin_collection_dynamic', {(routePrefix ~ 'entity_model_id'): model.id}) }}'})}; return false;">Remove</a>
+    {% endif %}
+{% endblock %}

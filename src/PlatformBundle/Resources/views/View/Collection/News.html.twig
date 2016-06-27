@@ -1,0 +1,15 @@
+{% extends 'AppGearPlatformBundle:View:Collection.html.twig' %}
+
+{% block body %}
+    <div>
+        {% for item in entity %}
+            <div>
+                {{ block('item') }}
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %}
+
+{% block item %}
+    {{ view.itemView.render(item)|raw }}
+{% endblock %}

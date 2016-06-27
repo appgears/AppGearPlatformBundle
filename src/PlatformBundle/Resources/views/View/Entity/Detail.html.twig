@@ -1,0 +1,60 @@
+{% extends 'AppGearPlatformBundle:View:Entity.html.twig' %}
+
+{% block footer %}
+    <a href="{{ path('appgear_view_admin_entity_edit_dynamic', {(routePrefix ~ 'entity_modelId'): model.id, (routePrefix ~ 'entity_id'): view.entity.id}) }}" class="btn btn-primary">Edit</a>
+    <a href="" class="btn btn-danger" onclick="if (confirm('Are you sure?')){$.post('{{ path('appgear_remove', {'entity_modelId': model.id, 'entity_id': view.entity.id}) }}', {}, function(){document.location='{{ path('appgear_view_admin_collection_dynamic', {(routePrefix ~ 'entity_model_id'): model.id}) }}'})}; return false;">Remove</a>
+{% endblock %}
+
+
+{# Отображение строкового поля #}
+{% block fieldString %}
+    {{ attribute(view.entity, property.name) }}
+{% endblock %}
+
+
+{# Отображение текстового поля #}
+{% block fieldText %}
+    {{ attribute(view.entity, property.name)|nl2br|auto_convert_urls|raw }}
+{% endblock %}
+
+
+{# Markdown #}
+{% block fieldMarkdown %}
+    {{ attribute(view.entity, property.name)|markdown }}
+{% endblock %}
+
+
+{# File #}
+{% block fieldFile %}
+    <a href="{{ asset(attribute(view.entity, property.name)) }}" target="_blank">{{ attribute(view.entity, property.name) }}</a>
+{% endblock %}
+
+
+{# Отображения для связи типа ToMany #}
+{% block relationshipToMany %}
+    {% if (attribute(view.entity, property.name)|length) > 0 %}
+        <ul style="margin-bottom: 0px">
+            {% for relatedItem in attribute(view.entity, property.name) %}
+                <li>{{ block('relationshipItem') }}</li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        -
+    {% endif %}
+{% endblock %}
+
+
+{# Отображения для связи типа ToOne #}
+{% block relationshipToOne %}
+    {% if attribute(view.entity, property.name) is not null %}
+        {% set relatedItem = attribute(view.entity, property.name) %}
+        {{ block('relationshipItem') }}
+    {% else %}
+        -
+    {% endif %}
+{% endblock %}
+
+
+{% block relationshipItem %}
+    {{ relatedItem }}
+{% endblock %}

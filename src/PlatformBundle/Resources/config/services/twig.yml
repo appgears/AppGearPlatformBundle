@@ -1,0 +1,20 @@
+services:
+
+    ag.twig.atom_extension:
+        class: AppGear\PlatformBundle\Twig\AtomExtension
+        arguments: [@service_container, @ag.service.tagged_manager]
+        tags:
+            - { name: twig.extension }
+
+    ag.twig.appgear_extension:
+        class: AppGear\PlatformBundle\Twig\AppGearExtension
+        arguments:
+            - @ag.service.entity.view.find_template
+        tags:
+            - { name: twig.extension }
+
+    ag.twig.php_extension:
+        class: AppGear\PlatformBundle\Twig\PhpExtension
+        arguments: [%ag.twig.extension.php_extension.functions%]
+        tags:
+            - { name: twig.extension }

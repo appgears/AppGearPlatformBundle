@@ -1,0 +1,255 @@
+parameters:
+
+    ag.twig.extension.php_extension.functions: [ceil, str_repeat, get_class, is_scalar]
+
+    neo4j.client.connection.host: localhost
+    neo4j.client.connection.port: 7474
+
+services:
+
+    doctrine.cache.array:
+      class: Doctrine\Common\Cache\ArrayCache
+
+    doctrine.cache.memcache:
+      class: Doctrine\Common\Cache\MemcacheCache
+      calls:
+        - [setMemcache, [@memcache]]
+
+    memcache:
+      class: Memcache
+      calls:
+        - [addserver, [%app_gear_platform.memcache.host%, %app_gear_platform.memcache.port%]]
+
+    neo4j_client:
+      class: Everyman\Neo4j\Client
+      arguments: [%neo4j.client.connection.host%, %neo4j.client.connection.port%]
+
+    phpparser.lexer:
+      class: PhpParser\Lexer
+
+    phpparser.parser:
+      class: PhpParser\Parser
+      arguments:
+        - @phpparser.lexer
+
+    phpparser.builder_factory:
+      class: PhpParser\BuilderFactory
+
+    symfony.component.serializer.normalizer.get_set_method_normalizer:
+        class: Symfony\Component\Serializer\Normalizer\GetSetMethodNormalizer
+
+    ag.cache.manager:
+        class: AppGear\PlatformBundle\Cache\Manager
+        arguments:
+          - @doctrine.cache.memcache
+
+    ag.factory:
+        class: AppGear\PlatformBundle\Factory\Factory
+        arguments:
+          - @doctrine.orm.entity_manager
+          - @service_container
+
+    ag.storage.mysql.driver:
+        class: AppGear\PlatformBundle\Storage\Mysql\Driver
+        arguments:
+            - @doctrine.dbal.default_connection
+            - @ag.cache.manager
+
+    ag.storage:
+        class: AppGear\PlatformBundle\Storage\Mysql\Storage
+        arguments:
+            - @service_container
+            - @ag.storage.mysql.driver
+            - @symfony.component.serializer.normalizer.get_set_method_normalizer
+
+    ag.service.tagged_manager:
+      class: AppGear\PlatformBundle\Service\TaggedManager
+
+    ag.service.entity.get_data:
+      class: AppGear\PlatformBundle\Service\Entity\GetData
+
+    ag.service.entity.load:
+      class: AppGear\PlatformBundle\Service\Entity\Load
+      arguments:
+        - @ag.factory
+
+    ag.service.entity.model.property.relationship.inversed.get_target:
+      class: AppGear\PlatformBundle\Service\Entity\Model\Property\Relationship\Inversed\GetTarget
+      tags:
+        - {name: ag.model_method, model_name: AppGear\PlatformBundle\Entity\Model\Property\Relationship\Inversed}
+
+    ag.service.entity.model.property.relationship.inversed.get_type:
+      class: AppGear\PlatformBundle\Service\Entity\Model\Property\Relationship\Inversed\GetType
+      tags:
+        - {name: ag.model_method, model_name: AppGear\PlatformBundle\Entity\Model\Property\Relationship\Inversed}
+
+    ag.service.entity.controller.view.execute:
+      class: AppGear\PlatformBundle\Service\Entity\Controller\View\Execute
+      tags:
+        - {name: ag.model_method, model_name: AppGear\PlatformBundle\Entity\Controller\View}
+
+    ag.service.entity.controller.remove.execute:
+      class: AppGear\PlatformBundle\Service\Entity\Controller\Remove\Execute
+      arguments:
+        - @router
+        - @ag.storage
+      tags:
+        - {name: ag.model_method, model_name: AppGear\PlatformBundle\Entity\Controller\Remove}
+
+    ag.service.entity.controller.save.execute:
+      class: AppGear\PlatformBundle\Service\Entity\Controller\Save\Execute
+      arguments:
+        - @router
+        - @ag.storage
+      tags:
+        - {name: ag.model_method, model_name: AppGear\PlatformBundle\Entity\Controller\Save}
+
+    ag.service.entity.view.find_template:
+      class: AppGear\PlatformBundle\Service\Entity\View\FindTemplate
+
+    ag.service.entity.view.render:
+      class: AppGear\PlatformBundle\Service\Entity\View\Render
+      arguments:
+        - @ag.storage
+        - @templating
+        - @ag.service.entity.view.find_template
+      tags:
+        - {name: ag.model_method, model_name: AppGear\PlatformBundle\Entity\View}
+        - {name: ag.twig}
+
+    ag.service.entity.view.collection.render:
+      class: AppGear\PlatformBundle\Service\Entity\View\Collection\Render
+      arguments:
+        - @ag.storage
+        - @templating
+        - @ag.service.entity.view.find_template
+      tags:
+        - {name: ag.model_method, model_name: AppGear\PlatformBundle\Entity\View\Collection}
+        - {name: ag.twig}
+
+    ag.service.entity.view.container.render:
+      class: AppGear\PlatformBundle\Service\Entity\View\Container\Render
+      arguments:
+        - @ag.storage
+        - @templating
+        - @ag.service.entity.view.find_template
+      tags:
+        - {name: ag.model_method, model_name: AppGear\PlatformBundle\Entity\View\Container}
+
+    ag.service.entity.view.container.admin.render:
+      class: AppGear\PlatformBundle\Service\Entity\View\Container\Admin\Render
+      arguments:
+        - @ag.storage
+        - @templating
+        - @ag.service.entity.view.find_template
+      tags:
+        - {name: ag.model_method, model_name: AppGear\PlatformBundle\Entity\View\Container\Admin}
+
+    ag.service.entity.view.entity.edit.render:
+      class: AppGear\PlatformBundle\Service\Entity\View\Entity\Edit\Render
+      arguments:
+        - @ag.storage
+        - @templating
+        - @ag.service.entity.view.find_template
+      tags:
+        - {name: ag.model_method, model_name: AppGear\PlatformBundle\Entity\View\Entity\Edit}
+        - {name: ag.twig}
+
+    ag.service.entity.collection.count:
+      class: AppGear\PlatformBundle\Service\Entity\Collection\Count
+      arguments:
+        - @ag.storage
+      tags:
+        - {name: ag.model_method, model_name: AppGear\PlatformBundle\Entity\Collection, atom_method_name: count, interface: '\Countable'}
+
+    ag.service.entity.collection.filter_tree_roots:
+      class: AppGear\PlatformBundle\Service\Entity\Collection\FilterTreeRoots
+      arguments: [@ag.service.entity.model.get_recursive_relationship_property]
+      tags:
+        - {name: ag.twig}
+
+    ag.service.entity.collection.get_iterator:
+      class: AppGear\PlatformBundle\Service\Entity\Collection\GetIterator
+      arguments:
+        - @ag.storage
+      tags:
+        - {name: ag.model_method, model_name: AppGear\PlatformBundle\Entity\Collection, atom_method_name: getIterator, interface: '\IteratorAggregate'}
+
+    ag.service.entity.model.generate_mysql_schema:
+      class: AppGear\PlatformBundle\Service\Entity\Model\GenerateMysqlSchema
+      arguments:
+        - @service_container
+        - @doctrine.dbal.default_connection
+        - @ag.service.tagged_manager
+
+    ag.service.entity.model.generate_source:
+      class: AppGear\PlatformBundle\Service\Entity\Model\GenerateSource
+      arguments:
+        - @service_container
+        - @phpparser.parser
+        - @phpparser.builder_factory
+      scope: prototype
+
+    ag.service.entity.model.get_all_properties:
+      class: AppGear\PlatformBundle\Service\Entity\Model\GetAllProperties
+      arguments: [@service_container]
+      tags:
+        - {name: ag.model_method, model_name: AppGear\PlatformBundle\Entity\Model}
+
+    ag.service.entity.model.get_all_fields:
+      class: AppGear\PlatformBundle\Service\Entity\Model\GetAllFields
+      arguments:
+        - @ag.service.entity.model.get_all_properties
+      tags:
+        - {name: ag.model_method, model_name: AppGear\PlatformBundle\Entity\Model}
+
+    ag.service.entity.model.get_all_relationships:
+      class: AppGear\PlatformBundle\Service\Entity\Model\GetAllRelationships
+      arguments:
+        - @ag.service.entity.model.get_all_properties
+      tags:
+        - {name: ag.model_method, model_name: AppGear\PlatformBundle\Entity\Model}
+
+    ag.service.entity.model.get_full_name:
+      class: AppGear\PlatformBundle\Service\Entity\Model\GetFullName
+
+    ag.service.entity.model.get_instance:
+      class: AppGear\PlatformBundle\Service\Entity\Model\GetInstance
+      arguments:
+         - @service_container
+         - @ag.service.entity.model.generate_source
+         - @ag.service.entity.model.get_source_path
+      scope: prototype
+      tags:
+        - {name: ag.model_method, model_name: AppGear\PlatformBundle\Entity\Model}
+
+    ag.service.entity.model.get_recursive_relationship_property:
+      class: AppGear\PlatformBundle\Service\Entity\Model\GetRecursiveRelationshipProperty
+      tags:
+        - {name: ag.twig}
+
+    ag.service.entity.model.get_root_model:
+      class: AppGear\PlatformBundle\Service\Entity\Model\GetRootModel
+      tags:
+        - {name: ag.twig}
+
+    ag.service.entity.model.get_representation_field:
+      class: AppGear\PlatformBundle\Service\Entity\Model\GetRepresentationField
+      tags:
+        - {name: ag.twig}
+
+    ag.service.entity.model.get_source_path:
+      class: AppGear\PlatformBundle\Service\Entity\Model\GetSourcePath
+      arguments:
+        - %composer.namespace_map%
+        - %kernel.root_dir%
+      tags:
+        - {name: ag.twig}
+
+    ag.service.entity.model.scope.get_full_name:
+      class: AppGear\PlatformBundle\Service\Entity\Model\Scope\GetFullName
+
+    ag.service.entity.model.scope.get_parent_or_self_names:
+      class: AppGear\PlatformBundle\Service\Entity\Model\Scope\GetParentOrSelfNames
+      tags:
+        - {name: ag.model_method, model_name: AppGear\PlatformBundle\Entity\Model\Scope}

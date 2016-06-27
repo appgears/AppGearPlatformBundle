@@ -1,0 +1,39 @@
+{% macro option(scope, level, related_ids, used_scopes_ids) %}
+    <optgroup label="{{ '&nbsp;'|str_repeat(level*4)|raw }}{{ scope.name }}">
+        {% for model in scope.models %}
+            <option value="{{ model.id }}"{% if model.id in related_ids %} selected="true"{% endif %}>{{ '&nbsp;'|str_repeat(level*4)|raw }}{{ model.name }}</option>
+        {% endfor %}
+
+        {% for child in scope.children %}
+            {% if child.id in used_scopes_ids %}
+                {{ _self.option(child, level+1, related_ids, used_scopes_ids) }}
+            {% endif %}
+        {% endfor %}
+    </optgroup>
+{% endmacro %}
+
+{% set _opposite_model = property.target %}
+{% set _root_scopes = [] %}
+{% set _root_scopes_ids = [] %}
+{% set _used_scopes_ids = [] %}
+{% for _related_model in relatedModelsItems[_opposite_model.fullName] %}
+    {% set _model_scopes = get_property_recursive(_related_model.scope, 'parent', true) %}
+    {% set _model_root_scope = (_model_scopes|last) %}
+    {% if _model_root_scope.id not in _root_scopes_ids %}
+        {% set _root_scopes = _root_scopes|merge([_model_root_scope]) %}
+        {% set _root_scopes_ids = _root_scopes_ids|merge([_model_root_scope.id]) %}
+    {% endif %}
+
+    {% for _model_scope in _model_scopes %}
+        {% if _model_scope.id not in _used_scopes_ids %}
+            {% set _used_scopes_ids = _used_scopes_ids|merge([_model_scope.id]) %}
+        {% endif %}
+    {% endfor %}
+{% endfor %}
+<select class="form-control" name="entity_{{ property.name }}_id" autocomplete="off">
+    <option value=""> -</option>
+
+    {% for _scope in _root_scopes %}
+        {{ _self.option(_scope, 0, _related_items_ids, _used_scopes_ids) }}
+    {% endfor %}
+</select>

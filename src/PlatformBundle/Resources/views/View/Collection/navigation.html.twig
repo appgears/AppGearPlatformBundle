@@ -1,0 +1,99 @@
+<div class="navigation">
+    {% set limit = entity.filter.limit %}
+    {% set pageCount = (entity.count/limit) | ceil %}
+    {% set proximity = 2 %}
+    {% set startPage = view.currentPage - proximity %}
+    {% set endPage = view.currentPage + proximity %}
+    {% set route = app.request.attributes.get('_route') %}
+    {% set routeParams = app.request.attributes.get('_route_params') %}
+    {% set queryParams = app.request.query.all() %}
+    {% set query = [] %}
+
+    {% if startPage < 1 %}
+        {% set endPage = endPage + (1 - startPage) %}
+        {% set startPage = 1 %}
+
+        {% if endPage > pageCount %}
+            {% set endPage = pageCount %}
+        {% endif %}
+    {% endif %}
+
+    {% if endPage > pageCount %}
+        {% set startPage = startPage - (endPage - pageCount) %}
+        {% if startPage < 1 %}
+            {% set startPage = 1 %}
+        {% endif %}
+
+        {% set endPage = pageCount %}
+    {% endif %}
+
+    {% if pageCount > 1 %}
+        <ul class="pagination">
+
+            {% if (view.currentPage - 1) > 0 %}
+                <li>
+                    <a href="{{ path(route, query|merge(routeParams)|merge(queryParams)|merge({(routePrefix ~ 'currentPage'): (view.currentPage - 1)})) }}">&laquo;&nbsp;{{ 'Previous'|trans }}</a>
+                </li>
+            {% else %}
+                <li class="disabled">
+                    <span>&laquo;&nbsp;{{ 'Previous'|trans }}</span>
+                </li>
+            {% endif %}
+
+            {% if startPage > 1 %}
+                <li>
+                    <a href="{{ path(route, query|merge(routeParams)|merge(queryParams)|merge({(routePrefix ~ 'currentPage'): 1})) }}">1</a>
+                </li>
+                {% if startPage == 3 %}
+                    <li>
+                        <a href="{{ path(route, query|merge(routeParams)|merge(queryParams)|merge({(routePrefix ~ 'currentPage'): 2})) }}">2</a>
+                    </li>
+                {% elseif startPage != 2 %}
+                    <li class="disabled">
+                        <span>&hellip;</span>
+                    </li>
+                {% endif %}
+            {% endif %}
+
+            {% for page in startPage..endPage %}
+                {% if page != view.currentPage %}
+                    <li>
+                        <a href="{{ path(route, query|merge(routeParams)|merge(queryParams)|merge({(routePrefix ~ 'currentPage'): page})) }}">{{ page }}</a>
+                    </li>
+                {% else %}
+                    <li class="active">
+                        <a href="{{ path(route, query|merge(routeParams)|merge(queryParams)|merge({(routePrefix ~ 'currentPage'): page})) }}">{{ page }}</a>
+                    </li>
+                {% endif %}
+
+            {% endfor %}
+
+            {% if pageCount > endPage %}
+                {% if pageCount > (endPage + 1) %}
+                    {% if pageCount > (endPage + 2) %}
+                        <li class="disabled">
+                            <span>&hellip;</span>
+                        </li>
+                    {% else %}
+                        <li>
+                            <a href="{{ path(route, query|merge(routeParams)|merge(queryParams)|merge({(routePrefix ~ 'currentPage'): (pageCount - 1)})) }}">{{ pageCount -1 }}</a>
+                        </li>
+                    {% endif %}
+                {% endif %}
+                <li>
+                    <a href="{{ path(route, query|merge(routeParams)|merge(queryParams)|merge({(routePrefix ~ 'currentPage'): pageCount})) }}">{{ pageCount }}</a>
+                </li>
+            {% endif %}
+
+            {% if (view.currentPage + 1) <= pageCount %}
+                <li>
+                    <a href="{{ path(route, query|merge(routeParams)|merge(queryParams)|merge({(routePrefix ~ 'currentPage'): (view.currentPage + 1)})) }}">{{ 'Next'|trans }}&nbsp;&raquo;</a>
+                </li>
+            {% else %}
+                <li class="disabled">
+                    <span>{{ 'Next'|trans }}&nbsp;&raquo;</span>
+                </li>
+            {% endif %}
+        </ul>
+    {% endif %}
+</div>

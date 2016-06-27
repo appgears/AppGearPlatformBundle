@@ -1,0 +1,4 @@
+appgear_security_login:
+    pattern:  /login
+    defaults:
+      _controller: AppGearSecurityBundle:Security:login

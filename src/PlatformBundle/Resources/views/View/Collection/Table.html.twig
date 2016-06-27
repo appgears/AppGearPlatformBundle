@@ -1,0 +1,124 @@
+{% extends 'AppGearPlatformBundle:View:Collection.html.twig' %}
+
+{% block body %}
+    <div class="table-responsive">
+        <table class="table table-hover table-bordered table-striped" data-toggle="table">
+            {% if entity|length %}
+                <thead>
+                    <tr>
+                        {{ block('theadItems') }}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in entity %}
+                        <tr>
+                            {{ block('row') }}
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            {% else %}
+                <tr>
+                    <td class="text-center">No Data</td>
+                </tr>
+            {% endif %}
+        </table>
+    </div>
+{% endblock %}
+
+
+{% block theadItems %}
+    {{ block('theadFieldItems') }}
+    {{ block('theadRelationshipItems') }}
+{% endblock %}
+
+
+{% block theadFieldItems %}
+    {% for property in entity.model.allFields %}
+        {{ block('theadFieldItemWrapper') }}
+    {% endfor %}
+{% endblock %}
+
+
+{% block theadFieldItemWrapper %}
+    <th>
+        <div class="th-inner">
+            {{ block('theadFieldItemContent') }}
+        </div>
+    </th>
+{% endblock %}
+
+
+{% block theadFieldItemContent %}
+    {{ property.name|humanize }}
+{% endblock %}
+
+
+{% block theadRelationshipItems %}
+    {% for property in entity.model.allRelationships %}
+        {{ block('theadRelationshipItemWrapper') }}
+    {% endfor %}
+{% endblock %}
+
+
+{% block theadRelationshipItemWrapper %}
+    <th>
+        <div class="th-inner">
+            {{ block('theadRelationshipItemContent') }}
+        </div>
+    </th>
+{% endblock %}
+
+
+{% block theadRelationshipItemContent %}
+    {{ property.name|humanize }}
+{% endblock %}
+
+
+{% block row %}
+    {% for property in entity.model.allFields %}
+
+        {# Имя блока для данного типа поля #}
+        {% set _block_name =  ('field' ~ (property|class)) %}
+
+        {# Выполняем блок #}
+        {% set _block =  block(_block_name) %}
+
+        {# Если содержимое блока не пустое - значит блок существует #}
+        {% if _block is not empty %}
+            <td>{{ _block|raw }}</td>
+        {# Иначе блока не существует - рендерим строковый блок по-умолчанию #}
+        {% else %}
+            <td>{{ attribute(item, property.name) }}</td>
+        {% endif %}
+
+    {% endfor %}
+
+    {% for rel in entity.model.allRelationships %}
+        <td>{{ block('rowRelationshipItem') }}</td>
+    {% endfor %}
+{% endblock %}
+
+
+{# File #}
+{% block fieldFile %}
+    <a href="{{ asset(attribute(item, property.name)) }}" target="_blank">{{ attribute(item, property.name) }}</a>
+{% endblock %}
+
+
+{% block rowRelationshipItem %}
+    {% if rel.type == 'OneToMany' or rel.type == 'ManyToMany' %}
+        {% for relatedItem in attribute(item, rel.name) %}
+            {{ block('rowRelatedItem') }}
+        {% endfor %}
+    {% else %}
+        {% if attribute(item, rel.name) is not null %}
+            {% set relatedItem = attribute(item, rel.name) %}
+            {{ block('rowRelatedItem') }}
+        {% endif %}
+    {% endif %}
+{% endblock %}
+
+
+{% block rowRelatedItem %}
+    {{ relatedItem }}
+{% endblock %}

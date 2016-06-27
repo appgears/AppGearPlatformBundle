@@ -1,0 +1,61 @@
+{% extends 'AppGearPlatformBundle:View:Collection\\Table.html.twig' %}
+
+{% block theadFieldItemContent %}
+    {% if entity.filter is defined and entity.filter.orders is defined and entity.filter.orders|length %}
+        {% set _sort_by_current_column = entity.filter.orders[0].field == property.name %}
+        {% set _sort_by_asc = entity.filter.orders[0].direction == 'asc' %}
+    {% else %}
+        {% set _sort_by_current_column = null %}
+        {% set _sort_by_asc = null %}
+    {% endif %}
+    {% set _sort_reversed = _sort_by_asc ? 'desc' : 'asc' %}
+
+    <a href="" style="text-decoration: none" onclick="sortCollection('{{ property.name }}', '{{ _sort_reversed }}'); return false;" class="{% if _sort_by_current_column and _sort_by_asc %}dropup{% endif %}">
+        {{ parent() }}
+        {% if _sort_by_current_column %}
+            <span class="caret" style="margin: 10px 5px;"></span>
+        {% endif %}
+    </a>
+{% endblock %}
+
+{% block body %}
+
+    <a href="{{ path('appgear_view_admin_entity_edit_dynamic', {(routePrefix ~ 'entity_modelId'): entity.model.id, (routePrefix ~ 'entity_id'): entity.id}) }}"
+       class="btn btn-default" role="button">Create</a>
+    <br><br>
+
+    {{ parent() }}
+
+    <script type="text/javascript" src="{{ asset('bundles/appgearplatform/lib/url.min.js') }}"></script>
+    <script type="text/javascript">
+        function sortCollection(field, direction) {
+            var u = new Url;
+            u.query['{{ routePrefix }}entity_filter_orders[0][field]'] = field;
+            u.query['{{ routePrefix }}entity_filter_orders[0][direction]'] = direction;
+            document.location = u.toString();
+        }
+    </script>
+{% endblock %}
+
+
+{% block theadItems %}
+    {{ parent() }}
+    <th></th>
+{% endblock %}
+
+
+{% block row %}
+    {{ parent() }}
+    <td>
+        <a href="{{ path('appgear_view_admin_entity_detail_dynamic', {(routePrefix ~ 'entity_modelId'): entity.model.id, (routePrefix ~ 'entity_id'): item.id}) }}">View</a>
+        <a href="{{ path('appgear_view_admin_entity_edit_dynamic', {(routePrefix ~ 'entity_modelId'): entity.model.id, (routePrefix ~ 'entity_id'): item.id}) }}">Edit</a>
+        {#<a href="" onclick="$.ajax({url: '{{ path('appgear_remove', {entity_modelId: entity.model.id, entity_id: item.id}) }}', type: 'DELETE', success: function(response) {if (response.redirect){window.location.href = response.redirect;}}}); return false;">Remove</a>#}
+        <a href="" onclick="if (confirm('Are you sure?')){$.post('{{ path('appgear_remove', {'entity_modelId': entity.model.id, 'entity_id': item.id}) }}', {}, function(){document.location.reload()})}; return false;">Remove</a>
+    </td>
+{% endblock %}
+
+
+{% block rowRelatedItem %}
+    <a href="{{ path('appgear_view_admin_entity_detail_dynamic', {(routePrefix ~ 'entity_modelId'): rel.target.id, (routePrefix ~ 'entity_id'): relatedItem.id}) }}"
+       target="_blank">{{ parent() }}</a>
+{% endblock %}
