@@ -165,8 +165,6 @@ class ModelFactory
      */
     protected function getBranchedModelsData($id)
     {
-//        echo __FUNCTION__ . ' ' . $id . '<br>';
-
         $result = [];
 
         // Ищем все конечные модели и пары связей
