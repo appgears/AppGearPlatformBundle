@@ -1,6 +1,7 @@
 <?php
 
 namespace AppGear\PlatformBundle\Service;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Class TaggedManager implements manager for the tagged service
@@ -13,6 +14,23 @@ class TaggedManager
      * @var array
      */
     protected $services = [];
+
+    /**
+     * Service container
+     *
+     * @var ContainerInterface
+     */
+    private $container;
+
+    /**
+     * TaggedManager constructor.
+     *
+     * @param ContainerInterface $container Service container
+     */
+    public function __construct(ContainerInterface $container)
+    {
+        $this->container = $container;
+    }
 
     /**
      * Add service to manager
@@ -52,6 +70,28 @@ class TaggedManager
         }
 
         return $result;
+    }
+
+    /**
+     * Return service by tag and attributes
+     *
+     * @param string $tag Tag name
+     * @param array $attributes Search for attributes (by key-value)
+     *
+     * @return object
+     */
+    public function get($tag, array $attributes = [])
+    {
+        foreach ($this->services as $service) {
+            if ($service['tag'] === $tag) {
+
+                if ($attributes === [] || $this->checkAttributes($service['attributes'], $attributes)) {
+                    return $this->container->get($service['id']);
+                }
+            }
+        }
+
+        return null;
     }
 
     /**

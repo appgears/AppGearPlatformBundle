@@ -64,6 +64,8 @@ services:
 
     ag.service.tagged_manager:
       class: AppGear\PlatformBundle\Service\TaggedManager
+      arguments:
+        - @service_container
 
     ag.service.entity.get_data:
       class: AppGear\PlatformBundle\Service\Entity\GetData
