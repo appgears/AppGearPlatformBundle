@@ -37,7 +37,6 @@ class Manager implements Cache
         $this->loadTags();
     }
 
-
     /**
      * Load tags map from the cache
      */
@@ -54,11 +53,10 @@ class Manager implements Cache
         }
     }
 
-
     /**
      * Set tags for the cache ID
      *
-     * @param string $id The ID
+     * @param string   $id   The ID
      *
      * @param string[] $tags Tags
      */
@@ -77,7 +75,6 @@ class Manager implements Cache
         $this->cache->save(self::TAGS_ID, $this->tags);
     }
 
-
     /**
      * Deletes a cache entries by tags
      *
@@ -95,7 +92,6 @@ class Manager implements Cache
         }
     }
 
-
     /**
      * {@inheritdoc}
      */
@@ -103,7 +99,6 @@ class Manager implements Cache
     {
         return $this->cache->fetch($id);
     }
-
 
     /**
      * {@inheritdoc}
@@ -113,7 +108,6 @@ class Manager implements Cache
         return $this->cache->contains($id);
     }
 
-
     /**
      * {@inheritdoc}
      */
@@ -121,7 +115,6 @@ class Manager implements Cache
     {
         return $this->cache->save($id, $data, $lifeTime);
     }
-
 
     /**
      * {@inheritdoc}
@@ -131,7 +124,6 @@ class Manager implements Cache
         return $this->cache->delete($id);
     }
 
-
     /**
      * {@inheritdoc}
      */
@@ -139,7 +131,6 @@ class Manager implements Cache
     {
         return $this->cache->deleteAll();
     }
-
 
     /**
      * {@inheritdoc}
