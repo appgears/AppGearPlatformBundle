@@ -3,7 +3,7 @@
 namespace AppGear\PlatformBundle\Service\Entity\View;
 
 use AppGear\PlatformBundle\Entity\View;
-use Cosmologist\Gears\Obj\PropertyRecursiveAccess;
+use Cosmologist\Gears\ObjectType\PropertyRecursiveAccess;
 use Symfony\Component\Templating\EngineInterface;
 
 class FindTemplate

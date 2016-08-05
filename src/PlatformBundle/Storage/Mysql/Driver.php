@@ -3,7 +3,7 @@
 namespace AppGear\PlatformBundle\Storage\Mysql;
 
 use AppGear\PlatformBundle\Cache\Manager;
-use Cosmologist\Gears\Arr;
+use Cosmologist\Gears\ArrayType;
 use Doctrine\DBAL\Connection;
 
 class Driver
@@ -602,7 +602,7 @@ class Driver
                         if (!in_array($id, $usedIds)) {
                             $this->connection->update($table, [$key['COLUMN_NAME'] => $fromId], ['id' => $toId]);
                         }
-                        $usedIds = Arr::unsetValue($usedIds, $id);
+                        $usedIds = ArrayType::unsetValue($usedIds, $id);
                     }
 
                     foreach ($usedIds as $id) {

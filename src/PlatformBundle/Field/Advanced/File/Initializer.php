@@ -2,7 +2,7 @@
 
 namespace AppGear\PlatformBundle\Field\Advanced\File;
 
-use Cosmologist\Gears\Obj;
+use Cosmologist\Gears\ObjectType;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 class Initializer
@@ -41,7 +41,7 @@ class Initializer
                 ->getPathName();
         }
 
-        return Obj::get($instance, $property->getName());
+        return ObjectType::get($instance, $property->getName());
     }
 
     /**

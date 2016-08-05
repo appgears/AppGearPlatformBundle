@@ -4,7 +4,7 @@ namespace AppGear\PlatformBundle\Service\Entity\View\Container\Admin;
 
 use AppGear\PlatformBundle\Entity\View;
 use AppGear\PlatformBundle\Service\Entity\View\Container\Render as ContainerRender;
-use Cosmologist\Gears\Obj\PropertyRecursiveAccess;
+use Cosmologist\Gears\ObjectType\PropertyRecursiveAccess;
 
 class Render extends ContainerRender
 {
